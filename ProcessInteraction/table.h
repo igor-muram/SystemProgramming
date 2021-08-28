@@ -41,7 +41,7 @@ int put(struct table *t, char *string)
     strcpy(t->data[t->size], string);
     (t->size)++;
 
-    return 0;
+    return t->size;
 }
 
 void print(struct table *t)
