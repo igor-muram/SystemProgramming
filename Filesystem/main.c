@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 
+// Подсчет количества файлов и папок в данной директории
 void count(DIR* dirPtr, int* filesCount, int* dirCount)
 {
 	*filesCount = 0;
@@ -27,6 +28,7 @@ void count(DIR* dirPtr, int* filesCount, int* dirCount)
 	rewinddir(dirPtr);
 }	
 
+// Заполнение массива названий файлов и массива названий папок именами файлов и папок
 void fill(DIR* dirPtr, char** files, char** dirs)
 {
 	int fileNo = 0;
@@ -55,6 +57,7 @@ void fill(DIR* dirPtr, char** files, char** dirs)
 	rewinddir(dirPtr);
 }
 
+// Функция сравнения двух файлов по дате последней модификации. Нужна для сортировки
 int compare(char* file1, char* file2)
 {
 	struct stat s1, s2;
@@ -69,6 +72,7 @@ int compare(char* file1, char* file2)
 		return -1;
 }
 
+// Функция обмена двух названий файлов местами. Нужна для сортировки
 void swap(char** file1, char** file2)
 {
 	char* temp = *file1;
@@ -76,6 +80,7 @@ void swap(char** file1, char** file2)
 	*file2 = temp;
 }
 
+// Функция сортировки для массива названий файлов. Пузырьковая сортировка
 void sort(char** files, int count)
 {
 	for (int i = 0; i < count; i++)
@@ -84,6 +89,7 @@ void sort(char** files, int count)
 			swap(&files[i], &files[j]);
 }
 
+// Функция вывода массивов названий файлов
 void print(char** files, int count)
 {
 	for (int i = 0; i < count; i++)
@@ -92,22 +98,46 @@ void print(char** files, int count)
 
 int main(int argc, char** argv)
 {
+	// Открытие директории, в которой мы сейчас находимся
 	DIR* dirPtr = opendir(".");
 
+	// Подсчет файлов и папок в данной директории
 	int filesCount, dirsCount;
 	count(dirPtr, &filesCount, &dirsCount);
 
+	// Массивы названий файлов и названий папок
 	char* files[512];
 	char* dirs[512];
 
+	// Заполение массивов названий файлов и папок
 	fill(dirPtr, files, dirs);
 
+	// Сортировка массива названий файлов по дате последней модификации
 	sort(files, filesCount);
+	
+	// Вывод отсортированного массива названий файлов или сообщение об отсутствии файлов в данной директории
+	if (filesCount != 0)
+	{	
+		printf("Files:\n");
+		print(files, filesCount);
+	}
+	else
+	{
+		printf("There are no files\n");
+	}
 
-	print(files, filesCount);
+	printf("\n\n");
 
-	print(dirs, dirsCount);
-
+	// Вывод массива названий папок или сообщение об отсутствии папок в данной директории
+	if (dirsCount != 0)
+	{
+		printf("Directories:\n");
+		print(dirs, dirsCount);
+	}
+	else
+	{
+		printf("There are no directories\n");
+	}
 	closedir(dirPtr);
 
 	return 0;
