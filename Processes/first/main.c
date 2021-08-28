@@ -16,8 +16,9 @@ int main(int argc, char *argv[])
 	// Check arguments
 	if (argc < 3)
 	{
-		printf("Not enough arguments\n");
-		return -1;
+		errno = EINVAL;
+		perror("Not enough arguments");
+		return errno;
 	}
 
 	int n = atoi(argv[1]);
@@ -25,7 +26,8 @@ int main(int argc, char *argv[])
 
 	if (argc != r + 3)
 	{
-		printf("Wrong number of arguments\n");
+		errno = EINVAL;
+		perror("Wrong number of arguments");
 		return -2;
 	}
 
@@ -43,7 +45,8 @@ int main(int argc, char *argv[])
 
 	if (check_sum != n)
 	{
-		printf("Sum of (ni) is not equal to (n)\n");
+		errno = EINVAL;
+		perror("Sum of (ni) is not equal to (n)");
 		return -3;
 	}
 

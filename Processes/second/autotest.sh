@@ -8,7 +8,7 @@ exp_file="t.expected"
 successful=0
 i=1
 while [ "$i" -le "$test_count" ]; do
-    r=$(./program $(cat tests/$i$in_file))
+    r=$(./program $(cat tests/$i$in_file) 2>&1)
     e=$(cat tests/$i$exp_file)
 
     echo "---------------------------------------------------"
