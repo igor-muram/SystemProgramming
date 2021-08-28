@@ -1,4 +1,4 @@
-#define _CRT_SECURE_NO_WARNINGS
+п»ї#define _CRT_SECURE_NO_WARNINGS
 #define UNICODE
 #include <stdio.h>
 #include <string.h>
@@ -19,7 +19,6 @@ bool SSESupport()
 		mov result, edx
 	}
 
-
 	result >>= 25;
 	bool sse = result & 1;
 
@@ -28,7 +27,7 @@ bool SSESupport()
 
 DWORD WINAPI TreadFunc(void* args)
 {
-	// Получение функции из 
+	// ГЏГ®Г«ГіГ·ГҐГ­ГЁГҐ ГґГіГ­ГЄГ¶ГЁГЁ ГЁГ§ 
 	typedef int (*HeightFunction)();
 	typedef bool (*SSEFunction)();
 
@@ -42,7 +41,7 @@ DWORD WINAPI TreadFunc(void* args)
 	int height = DLLMaxHeight();
 	bool sse = DLLSSESupport();
 
-	wsprintf(info, L"Max-height of window: %dpx, SSE support: %s", height, sse ? L"true" : L"false");
+	wsprintf(info, L"Max client height of window: %dpx, SSE support: %s", height, sse ? L"true" : L"false");
 	FreeLibrary(hinstLib);
 	return 0;
 }
@@ -94,10 +93,10 @@ int WINAPI WinMain(HINSTANCE hThisInst, HINSTANCE hPrevInst, LPSTR str, int nWin
 
 	HWND hWnd = CreateWindow(
 		L"MainWindow",
-		L"Window max-height and SSE",
-		WS_OVERLAPPEDWINDOW,
+		L"Window max client height and SSE",
+		WS_OVERLAPPED | WS_SYSMENU,
 		400, 400,
-		700, 80,
+		400, 80,
 		HWND_DESKTOP,
 		NULL,
 		hThisInst,
