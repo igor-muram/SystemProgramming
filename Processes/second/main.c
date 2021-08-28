@@ -13,8 +13,9 @@ int main(int argc, char **argv)
 	// Check arguments
 	if (argc < 3)
 	{
-		printf("Not enough arguments\n");
-		return -1;
+		errno = EINVAL;
+		perror("Not enough arguments");
+		return errno;
 	}
 
 	int n = atoi(argv[1]);
@@ -22,7 +23,8 @@ int main(int argc, char **argv)
 
 	if (argc != r + 3)
 	{
-		printf("Wrong number of arguments\n");
+		errno = EINVAL;
+		perror("Wrong number of arguments");
 		return -2;
 	}
 
@@ -40,26 +42,27 @@ int main(int argc, char **argv)
 
 	if (check_sum != n)
 	{
-		printf("Sum of (ni) is not equal to (n)\n");
+		errno = EINVAL;
+		perror("Sum of (ni) is not equal to (n)");
 		return -3;
 	}
 
-	int pipes[100][2]; // Pipes for child processes
+	int p[2];		   // Pipe for child processes
 	char s_write[100]; // String for write-fd storage
 	char s_value[100]; // String for value storage
 	int pids[100];	   // Array of child pids
 
+	if (pipe(p) < 0)
+	{
+		perror("pipe");
+		return errno;
+	}
+
+	sprintf(s_write, "%d", p[1]); // Write-fd to string
+
 	for (int i = 0; i < r + 1; i++)
 	{
-		// Create pipe
-		if (pipe(pipes[i]) < 0)
-		{
-			perror("pipe");
-			return errno;
-		}
-
-		sprintf(s_write, "%d", pipes[i][1]); // Write-fd to string
-		sprintf(s_value, "%d", ni[i]);		 // Value to string
+		sprintf(s_value, "%d", ni[i]); // Value to string
 
 		// Create child process
 		int pid = fork();
@@ -77,7 +80,7 @@ int main(int argc, char **argv)
 		}
 
 		// Read child pid
-		if (read(pipes[i][0], &pids[i], sizeof(int)) < 0)
+		if (read(p[0], &pids[i], sizeof(int)) < 0)
 		{
 			perror("read");
 			return errno;
@@ -85,8 +88,13 @@ int main(int argc, char **argv)
 	}
 
 	int gpid = getpgrp(); // Group pid
+
 	// Send start signal for all processes in group
-	if (killpg(gpid, START) < 0)
+	int tries = 0;
+	while (killpg(gpid, START) < 0 && tries < 15)
+		tries++;
+
+	if (tries == 15)
 	{
 		perror("killpg");
 		return errno;
@@ -99,7 +107,7 @@ int main(int argc, char **argv)
 	// Reading values from child processes
 	for (int i = 0; i < r + 1; i++)
 	{
-		if (read(pipes[i][0], &ni[i], sizeof(int)) < 0)
+		if (read(p[0], &ni[i], sizeof(int)) < 0)
 		{
 			perror("read");
 			return errno;
